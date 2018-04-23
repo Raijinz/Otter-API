@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'yc_pd=5p61o%o&q992pd*!kos*6mn^bhi38uf^3$k9wo3^lfbn'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'yc_pd=5p61o%o&q992pd*!kos*6mn^bhi38uf^3$k9wo3^lfbn')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -35,9 +35,17 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'rest_auth',
+    'rest_auth.registration',
+    'fcm_django',
     'api',
 ]
 
@@ -108,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Bangkok'
 
 USE_I18N = True
 
@@ -121,3 +129,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+SITE_ID = 1
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+FCM_DJANGO_SETTINGS = {
+    'FCM_SERVER_KEY': 'AAAAnIhw2xo:APA91bF6bOvJfUygydBXkJP9DSGPaptGbs3P0g9FwbUxi3oY90OuaIZHb8KD8MsGCKTS8lh1_wey5h2SperW7t6Jp4_RV3HQk3isfMkk881N1FEsPSwwUpF-HWfP91kRMUUjJhRQ16rA',
+    'ONE_DEVICE_PER_USER': True,
+}

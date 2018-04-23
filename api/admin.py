@@ -7,11 +7,12 @@ class PyOTPAdmin(admin.ModelAdmin):
     """
 
     """
-    list_display = ('id', 'uuid', 'secret', 'created_at',)
+    list_display = ('id', 'uuid', 'user', 'secret', 'created_at',)
     list_display_links = ('uuid',)
     search_fields = ('uuid', 'secret',)
     list_per_page = 20
     ordering = ('-id',)
+
 
 admin.site.register(models.PyOTP, PyOTPAdmin)
 admin.site.unregister(Group)

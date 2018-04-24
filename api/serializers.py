@@ -98,3 +98,30 @@ class VerifyOTPSerializer(serializers.Serializer):
             totp = pyotp.TOTP(obj.secret, interval=obj.interval)
             return totp.verify(otp)
         return False
+
+
+class FCMSendSerializer(mixins.FCMMixin, serializers.Serializer):
+    """
+
+    """
+    def send_push(self, uuid):
+        device = self._find_user_device(uuid)
+        device.send_message(title="Title", body="Hello from Otter-API! Congratulations!")
+        return True
+
+
+class FCMRegisterSerializer(mixins.FCMMixin, serializers.Serializer):
+    """
+
+    """
+    username = serializers.CharField(required=True)
+
+    def register_push(self, username, uuid):
+        """
+
+        :param username:
+        :param uuid:
+        :return:
+        """
+        self._update_user(username, uuid)
+        return True

@@ -5,7 +5,7 @@ from . import models, serializers
 
 class PyOTPViewset(viewsets.GenericViewSet):
     """
-    PyOTP Viewset, every PyOTP HTTP request is handled by this class
+    PyOTP Generic Viewset, every PyOTP HTTP request is handled by this class
     """
     queryset = models.PyOTP.objects.all()
     lookup_field = 'uuid'
@@ -94,5 +94,47 @@ class PyOTPViewset(viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         valid_otp = serializer.verify_otp(serializer.data.get('otp'), obj, otp_type)
         if not valid_otp:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_200_OK)
+
+
+class FCMViewset(viewsets.GenericViewSet):
+    """
+    FCM Viewset, every FCM HTTP request is handled by this class
+    """
+    def get_serializer_class(self):
+        if self.action == 'send_push':
+            return serializers.FCMSendSerializer
+        elif self.action == 'register_push':
+            return serializers.FCMRegisterSerializer
+        return serializers.NoneSerializer
+
+    def register_push(self, request, uuid):
+        """
+
+        :param request:
+        :param uuid:
+        :return:
+        """
+        serializer = self.get_serializer_class()
+        serializer = serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        result = serializer.register_push(serializer.data.get('username'), uuid)
+        if not result:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_200_OK)
+
+    def send_push(self, request, uuid):
+        """
+
+        :param request:
+        :param uuid:
+        :return:
+        """
+        serializer = self.get_serializer_class()
+        serializer = serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        result = serializer.send_push(uuid)
+        if not result:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)

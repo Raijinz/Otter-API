@@ -1,10 +1,12 @@
 import pyotp
+from django.contrib.auth.models import User
+from fcm_django.models import FCMDevice
 from .models import PyOTP
 
 
 class OTPMixin(object):
     """
-
+    Mixin for PyOTP model
     """
     provision_uri = False
 
@@ -15,7 +17,7 @@ class OTPMixin(object):
         """
         return pyotp.random_base32()
 
-    def _insert_into_db(self, secret=None, count=None, interval=None, data={}):
+    def _insert_into_db(self, user=None, secret=None, count=None, interval=None, data={}):
         """
         Insert new PyOTP object into DB
         :param secret: OTP secret
@@ -28,6 +30,7 @@ class OTPMixin(object):
             'secret': secret,
             'count': count,
             'interval': interval,
+            'user': user,
         }
 
         # If provision setting is True, save all remaining data into DB
@@ -93,3 +96,29 @@ class OTPMixin(object):
         # Save data into DB
         obj = self._insert_into_db(secret=base32string, interval=interval, data=data)
         return self._create_response(otp, obj, totp, data)
+
+
+class FCMMixin(object):
+    """
+    Mixin for FCM model
+    """
+    def _update_user(self, username, uuid):
+        """
+
+        :param user:
+        :param uuid:
+        :return:
+        """
+        user = PyOTP.objects.get(uuid=uuid)
+        user.user = User.objects.get(username=username)
+        return user.save()
+
+    def _find_user_device(self, uuid):
+        """
+        Find the User's FCM device
+        :param uuid: UUID
+        :return: FCMDevice of that User
+        """
+        user = PyOTP.objects.get(uuid=uuid)
+        device = FCMDevice.objects.get(user=user.user)
+        return device

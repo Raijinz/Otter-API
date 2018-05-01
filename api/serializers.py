@@ -102,26 +102,65 @@ class VerifyOTPSerializer(serializers.Serializer):
 
 class FCMSendSerializer(mixins.FCMMixin, serializers.Serializer):
     """
-
+    Firebase Cloud Messaging Sending Serializer
     """
     def send_push(self, uuid):
+        """
+        Send the push notification
+        :param uuid: UUID
+        :return: Refer code
+        """
+        refer = pyotp.random_base32(length=4)
+        self._update_code(refer, uuid)
         device = self._find_user_device(uuid)
-        device.send_message(title="Title", body="Hello from Otter-API! Congratulations!")
-        return True
+        device.send_message(title="Otter", body="Your refer code is: " + refer, click_action="OPEN_MAINPAGE2", data={"refer_code": refer})
+        return refer
 
 
 class FCMRegisterSerializer(mixins.FCMMixin, serializers.Serializer):
     """
-
+    Firebase Cloud Messaging Register Serializer
     """
     username = serializers.CharField(required=True)
 
     def register_push(self, username, uuid):
         """
+        Register the phone to the username in FCM model
+        :param username: Phone's owner
+        :param uuid: UUID
+        :return: True/False
+        """
+        self._update_user_pyotp(username, uuid)
+        return True
+
+
+class FCMVerifySerializer(mixins.FCMMixin, serializers.Serializer):
+    """
+
+    """
+    username = serializers.CharField(required=True, help_text='Otter username')
+    refer_code = serializers.CharField(required=True, help_text='Refer code')
+    accept = serializers.BooleanField(required=True, help_text='Accept/Deny')
+
+    def verify_push(self, username, refer, accept):
+        """
 
         :param username:
-        :param uuid:
+        :param refer_code:
         :return:
         """
-        self._update_user(username, uuid)
+        if accept is False:
+            return False
+        return True
+
+
+class FCMMobileSerializer(mixins.FCMMixin, serializers.Serializer):
+    """
+
+    """
+    username = serializers.CharField(required=True, help_text='Otter username')
+    registration_id = serializers.CharField(required=True, help_text='FCM Instance ID')
+
+    def mobilelink(self, username, registration_id):
+        self._update_user_fcm(username, registration_id)
         return True

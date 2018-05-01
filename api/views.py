@@ -1,5 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+import requests
 from . import models, serializers
 
 
@@ -107,6 +108,10 @@ class FCMViewset(viewsets.GenericViewSet):
             return serializers.FCMSendSerializer
         elif self.action == 'register_push':
             return serializers.FCMRegisterSerializer
+        elif self.action == 'verify_push':
+            return serializers.FCMVerifySerializer
+        elif self.action == 'mobile_push':
+            return serializers.FCMMobileSerializer
         return serializers.NoneSerializer
 
     def register_push(self, request, uuid):
@@ -135,6 +140,43 @@ class FCMViewset(viewsets.GenericViewSet):
         serializer = serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         result = serializer.send_push(uuid)
+        if result is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(data=result, status=status.HTTP_200_OK)
+
+    def verify_push(self, request):
+        """
+
+        :param request:
+        :param refer:
+        :return:
+        """
+        serializer = self.get_serializer_class()
+        serializer = serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        result = serializer.verify_push(serializer.data.get('username'), serializer.data.get('refer_code'), serializer.data.get('accept'))
+        if not result:
+            self.callback(result)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        self.callback(result)
+        return Response(status=status.HTTP_200_OK)
+
+    def mobile_push(self, request):
+        """
+
+        :param request:
+        :return:
+        """
+        serializer = self.get_serializer_class()
+        serializer = serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        result = serializer.mobilelink(serializer.data.get('username'), serializer.data.get('registration_id'))
         if not result:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
+
+    def callback(self, result):
+        if result is False:
+            requests.post('http://161.246.5.9', data={'http_code': 400})
+        else:
+            requests.post('http://161.246.5.9', data={'http_code': 200})

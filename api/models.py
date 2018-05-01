@@ -58,6 +58,13 @@ class PyOTP(models.Model):
         max_length=255,
         help_text=_('Issuer Name for Provisioning URI.'),
     )
+    refer_code = models.CharField(
+        _('Refer Code'),
+        null=True,
+        blank=True,
+        max_length=4,
+        help_text=_('Refer Code for each request of FCM.'),
+    )
     created_at = models.DateTimeField(
         _('Created at'),
         auto_now_add=True,

@@ -11,6 +11,8 @@ generate_hotp_provision_uri = views.PyOTPViewset.as_view({'post': 'generate_hotp
 generate_totp_provision_uri = views.PyOTPViewset.as_view({'post': 'generate_totp_provision_uri', })
 register_push = views.FCMViewset.as_view({'post': 'register_push', })
 send_push = views.FCMViewset.as_view({'post': 'send_push', })
+verify_push = views.FCMViewset.as_view({'post': 'verify_push', })
+mobile_push = views.FCMViewset.as_view({'post': 'mobile_push', })
 
 urlpatterns = [
     path('generate-otp/hotp/', generate_hotp, name='generate-hotp'),
@@ -21,4 +23,6 @@ urlpatterns = [
             .format(otp_type=OTP_TYPE_REGEX, uuid=UUID_REGEX), verify_otp, name='verify-otp'),
     re_path(r'^register-push/(?P<uuid>{uuid})/$'.format(uuid=UUID_REGEX), register_push, name='register-push'),
     re_path(r'^send-push/(?P<uuid>{uuid})/$'.format(uuid=UUID_REGEX), send_push, name='send-push'),
+    path('verify-push/', verify_push, name='verify-push'),
+    path('mobile-push/', mobile_push, name='mobile-push'),
 ]

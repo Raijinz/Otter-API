@@ -1,5 +1,7 @@
 import pyotp
+import qrcode
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 from fcm_django.models import FCMDevice
 from .models import PyOTP
 
@@ -58,8 +60,9 @@ class OTPMixin(object):
             provisioning_uri = otp_type_obj.provisioning_uri(**data)
             response = {
                 'otp_uuid': str(instance.uuid),
-                'provisioning_uri': provisioning_uri,
+                # 'provisioning_uri': provisioning_uri,
             }
+            return qrcode.make(provisioning_uri)
 
         return response
 
@@ -102,7 +105,7 @@ class FCMMixin(object):
     """
     Mixin for FCM model
     """
-    def _update_user(self, username, uuid):
+    def _update_user_pyotp(self, username, uuid):
         """
 
         :param user:
@@ -110,8 +113,18 @@ class FCMMixin(object):
         :return:
         """
         user = PyOTP.objects.get(uuid=uuid)
-        user.user = User.objects.get(username=username)
+        user.user = get_object_or_404(User, username=username)
         return user.save()
+
+    def _update_user_fcm(self, username, registration_id):
+        """
+
+        :param username:
+        :return:
+        """
+        user = get_object_or_404(User, username=username)
+        device = FCMDevice(registration_id=registration_id, user=user)
+        return device.save()
 
     def _find_user_device(self, uuid):
         """
@@ -122,3 +135,25 @@ class FCMMixin(object):
         user = PyOTP.objects.get(uuid=uuid)
         device = FCMDevice.objects.get(user=user.user)
         return device
+
+    def _update_code(self, refer, uuid):
+        """
+
+        :param refer:
+        :param uuid:
+        :return:
+        """
+        user = PyOTP.objects.get(uuid=uuid)
+        user.refer_code = refer
+        user.save()
+
+    def _verify_message(self, username, refer):
+        """
+
+        :param username:
+        :param refer:
+        :return:
+        """
+        user = get_object_or_404(User, username=username)
+        user = PyOTP.objects.get(user=user)
+        return refer == user.refer_code

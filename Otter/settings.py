@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'yc_pd=5p61o%o&q992pd*!kos*6mn^bhi38uf^3$k9wo3^lfbn')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['161.246.5.8']
 
 
 # Application definition
@@ -136,5 +136,4 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 FCM_DJANGO_SETTINGS = {
     'FCM_SERVER_KEY': 'AAAAnIhw2xo:APA91bF6bOvJfUygydBXkJP9DSGPaptGbs3P0g9FwbUxi3oY90OuaIZHb8KD8MsGCKTS8lh1_wey5h2SperW7t6Jp4_RV3HQk3isfMkk881N1FEsPSwwUpF-HWfP91kRMUUjJhRQ16rA',
-    'ONE_DEVICE_PER_USER': True,
 }
